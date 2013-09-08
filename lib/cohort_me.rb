@@ -24,13 +24,13 @@ module CohortMe
     cohort_label = nil
 
     if interval_name == "weeks"
-      start_from = start_from_interval.weeks.ago
+      start_from = start_from_interval.weeks.ago.beginning_of_week
       time_conversion = 7
     elsif interval_name == "days"
-      start_from = start_from_interval.days.ago
+      start_from = start_from_interval.days.ago.beginning_of_day
       time_conversion = 1
     elsif interval_name == "months"
-      start_from = start_from_interval.months.ago
+      start_from = start_from_interval.months.ago.beginning_of_month
       time_conversion = 30
     end
 
