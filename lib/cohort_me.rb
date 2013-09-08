@@ -25,13 +25,13 @@ module CohortMe
 
     if interval_name == "weeks"
       start_from = start_from_interval.weeks.ago
-      time_conversion = 604800
+      time_conversion = 7
     elsif interval_name == "days"
       start_from = start_from_interval.days.ago
-      time_conversion = 86400
+      time_conversion = 1
     elsif interval_name == "months"
       start_from = start_from_interval.months.ago
-      time_conversion = 1.month.seconds
+      time_conversion = 30
     end
 
     cohort_query = activation_class.select("#{activation_table_name}.#{activation_user_id}, MIN(#{activation_table_name}.created_at) as cohort_date").group("#{activation_user_id}").where("created_at > ?", start_from)
@@ -42,7 +42,7 @@ module CohortMe
 
     if %(mysql mysql2).include?(ActiveRecord::Base.connection.instance_values["config"][:adapter])
     
-      select_sql = "#{activity_table_name}.#{activity_user_id}, #{activity_table_name}.created_at, cohort_date, FLOOR(TIMEDIFF(#{activity_table_name}.created_at, cohort_date)/#{time_conversion}) as periods_out"
+      select_sql = "#{activity_table_name}.#{activity_user_id}, #{activity_table_name}.created_at, cohort_date, FLOOR(DATEDIFF(#{activity_table_name}.created_at, cohort_date)/#{time_conversion}) as periods_out"
     elsif ActiveRecord::Base.connection.instance_values["config"][:adapter] == "postgresql"
       select_sql = "#{activity_table_name}.#{activity_user_id}, #{activity_table_name}.created_at, cohort_date, FLOOR(extract(epoch from (#{activity_table_name}.created_at - cohort_date))/#{time_conversion}) as periods_out"
     else
